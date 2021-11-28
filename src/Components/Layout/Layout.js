@@ -29,7 +29,7 @@ export default function Layout(props) {
     return (
         <React.Fragment >
             <HideOnScroll {...props}>
-              <AppBar >
+              <AppBar sx={{backgroundColor: "black"}} >
                 <Toolbar>
                   <Navegation />
                 </Toolbar>
