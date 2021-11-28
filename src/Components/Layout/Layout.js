@@ -39,7 +39,7 @@ export default function Layout(props) {
             <div style={{minHeight: '85vh'}}>
                 <LoadRoutes routes={routes} />
             </div>
-            <div >
+            <div style={{backgroundColor: "black"}} >
               <Footer />
             </div>  
         </React.Fragment>
