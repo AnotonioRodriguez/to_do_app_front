@@ -3,6 +3,7 @@ import { Box } from '@mui/system';
 import MenuIcon from '@mui/icons-material/Menu';
 import React, { useState } from 'react';
 import imagen from '../../img/BlackStones.jpg'
+import NewTask from  '../../Pages/Tasks/NewTask'
 import { Link } from 'react-router-dom';
 
 export default function Navegation() {
@@ -54,6 +55,15 @@ export default function Navegation() {
                 >
                     <b>Register</b>
                 </Button>
+                <Button
+                    component={Link}
+                    to="/tasks"
+                    // onClick={handleCloseNavMenu}
+                    sx={{ my: 2, pl: 3, color: 'white', display: 'block' }}
+                >
+                    <b>Tasks</b>
+                </Button>
+                <NewTask />
             </Box>
             <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
                 <IconButton
