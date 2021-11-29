@@ -6,7 +6,6 @@ import { TasksProvider } from './context/conextTasks';
 
 function App() {
 
-
   return (
 		<div className="App">
 			<Helmet>
