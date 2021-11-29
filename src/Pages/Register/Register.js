@@ -1,7 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import { makeStyles } from '@mui/styles';
-import { Button, Checkbox, FormControlLabel, Grid, Paper, TextField, Typography } from '@mui/material';
+import jwt_decode from 'jwt-decode';
+import { Button, Checkbox, CircularProgress, FormControlLabel, Grid, Paper, TextField, Typography } from '@mui/material';
 import { Box } from '@mui/system';
+import clienteAxios from '../../Config/axios';
+import SnackBarMessages from '../../Components/SnackBarMessages';
 
 const useStyles = makeStyles(() => ({
     formInputFlex: {
@@ -13,13 +16,73 @@ const useStyles = makeStyles(() => ({
     },
 }))
 
-export default function Register() {
+export default function Register(props) {
     const classes = useStyles();
-    const [datosPersonales, setDatosPersonales] = useState([]);
+    const [ loading, setLoading ] = useState(false);
+    const [ datosPersonales, setDatosPersonales ] = useState([]);
+    const [ validate, setValidate ] = useState(false);
+    const [ alert, setAlert ] = useState({ message: '', status: '', open: false });
 
     const obtenerDatos =(e)=>{
         setDatosPersonales({...datosPersonales, [e.target.name]: e.target.value})
-    }
+    };
+
+    const enviarDatos = async () => {
+        if (!datosPersonales.name || !datosPersonales.nameUser
+            || !datosPersonales.telephone || !datosPersonales.town 
+            || !datosPersonales.password  || !datosPersonales.repeatPassword || !datosPersonales.email 
+            || !datosPersonales.state || !datosPersonales.cp || datosPersonales.acceptPolicies === false) {
+			setValidate(true);
+            setAlert({
+                open: true,
+                message: 'Por favor completa todos los datos.',
+                status: 'error'
+            });
+			return;
+		}
+        setLoading(true);
+
+        await clienteAxios
+            .post('/user/', datosPersonales)
+            .then((res) => {
+                setLoading(false);
+                setDatosPersonales([]);
+                const token = res.data.token;
+			    const decoded = jwt_decode(token);
+                localStorage.setItem('sesionUser', JSON.stringify(decoded));
+			    localStorage.setItem('tokenUser', JSON.stringify(token));
+                setAlert({
+                    open: true,
+                    message: 'Bienvenido usuario registrado con exito',
+                    status: 'success'
+                });
+                props.history.push(`/tasks`);
+            }
+        ).catch((err) => {
+            if (err.response) {
+                setAlert({
+                    open: true,
+                    message: 'Al parecer el nombre de usuario que ingresaste ya existe.',
+                    status: 'error'
+                });
+                setLoading(false);
+            } else {
+                setAlert({
+                    open: true,
+                    message: 'Error en el servidor',
+                    status: 'error'
+                });
+                setLoading(false);
+            }
+        });
+    };
+
+    if (loading)
+		return (
+			<Box display="flex" justifyContent="center" alignItems="center" height="30vh">
+				<CircularProgress />
+			</Box>
+		);
 
     return (
         <>
@@ -29,10 +92,11 @@ export default function Register() {
                 justifyContent="center"
                 alignItems="center"
             >
-                <Grid lg={5} xs={12}>
+                <SnackBarMessages alert={alert} setAlert={setAlert} />
+                <Grid item lg={5} md={6} xs={12}>
                     <Box p={2}>
                     <Paper elevation={5}>
-                        <Box>
+                        <Box p={1}>
                             <Typography variant="h6">
                                 Registro dentro de nuestro sitema de tareas:
                             </Typography>
@@ -89,7 +153,7 @@ export default function Register() {
                                     <TextField
                                         fullWidth
                                         size="small"
-                                        name="estado"
+                                        name="state"
                                         onChange={obtenerDatos}
                                         variant="outlined"
                                     />
@@ -129,7 +193,7 @@ export default function Register() {
                                     <TextField
                                         fullWidth
                                         size="small"
-                                        name="user"
+                                        name="nameUser"
                                         onChange={obtenerDatos}
                                         variant="outlined"
                                     />
@@ -166,12 +230,17 @@ export default function Register() {
                             <Box width="100%" p={1}>
                                 <Typography>Al registrarte aceptas nuestras politicas de privacoidad dentro de la empresa</Typography>
                                 <Box display="flex" justifyContent="center" p={1}>
-                                    <FormControlLabel 
-                                        control={<Checkbox />} 
-                                        label="Politicas de Privacidad" 
-                                        name="politics"
-                                        onChange={obtenerDatos}
-                                    />
+                                <FormControlLabel 
+                                    control={
+                                        <Checkbox 
+                                            name="acceptPolicies"
+                                            onChange={(e) =>
+                                                setDatosPersonales({ ...datosPersonales, acceptPolicies: e.target.checked })
+                                            }
+                                        />
+                                    } 
+                                    label="Politicas de Privacidad" 
+                                />
                                 </Box>
                             </Box>
                         </div>
@@ -180,6 +249,7 @@ export default function Register() {
                                 variant="contained"
                                 color="success"
                                 size="large"
+                                onClick={enviarDatos}
                             >
                                 Registrarme
                             </Button>

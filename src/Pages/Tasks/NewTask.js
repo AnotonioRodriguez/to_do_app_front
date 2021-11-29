@@ -1,7 +1,10 @@
-import { Button, Dialog, DialogContent, DialogTitle, FormControl, MenuItem, Select, TextField, Typography} from '@mui/material'
+import { Button, CircularProgress, Dialog, DialogContent, DialogTitle, FormControl, MenuItem, Select, TextField, Typography} from '@mui/material'
 import { makeStyles } from '@mui/styles';
 import { Box } from '@mui/system';
-import React, { useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
+import SnackBarMessages from '../../Components/SnackBarMessages';
+import clienteAxios from '../../Config/axios';
+import { TaskContext } from '../../context/conextTasks';
 
 const useStyles = makeStyles(() => ({
     formInputFlex: {
@@ -13,25 +16,129 @@ const useStyles = makeStyles(() => ({
     },
 }));
 
-export default function NewTask({type}) {
+export default function NewTask({type, task}) {
+    const sesionUser = JSON.parse(localStorage.getItem('sesionUser'));
+    const token = localStorage.getItem('tokenUser');
+    console.log(token);
+    const { update, setUpdate } = useContext(TaskContext);
+
     const classes = useStyles();
 
-    const [open, setOpen] = useState(false);
-    const [datosTarea, setDatosTarea] = useState([]);
+    const [ open, setOpen] = useState(false);
+    const [ datosTarea, setDatosTarea] = useState([]);
+    const [ loading, setLoading] = useState(false);
+    const [ alert, setAlert ] = useState({ message: '', status: '', open: false });
 
     const handleClickOpen = () => {
         setOpen(!open);
+        if (task) {
+            setDatosTarea(task);
+        }
     };
 
     const obtenerDatos = (e) => {
         setDatosTarea({...datosTarea, [e.target.name]: e.target.value})
-    }
+    };
 
+    useEffect(() => {
+        if (task) {
+            setDatosTarea(task);
+        }
+    }, [])
+
+
+    const createTasks = async (task) => {
+        if (!datosTarea.title || !datosTarea.priority ) {
+            setAlert({
+                open: true,
+                message: 'Por lo menos la prioridad y el titutlo son obligatorios.',
+                status: 'error'
+            });
+			return;
+		}
+        setLoading(true);
+        if(type === "EDITAR"){
+            console.log(task);
+            await clienteAxios
+            .put(`/tasks/${sesionUser._id}/${task}`, datosTarea,{
+				headers: {
+					Authorization: `bearer ${token}`
+				}
+			})
+            .then((res) => {
+                setLoading(false);
+                setUpdate(!update);
+                handleClickOpen();
+                setAlert({
+                    open: true,
+                    message: res.data.message,
+                    status: 'success'
+                });
+            }
+            ).catch((err) => {
+                setUpdate(!update);
+                handleClickOpen();
+                if (err.response) {
+                    setAlert({
+                        open: true,
+                        message: 'Oh no ocurrio un problema en el registro',
+                        status: 'error'
+                    });
+                    setLoading(false);
+                } else {
+                    setAlert({
+                        open: true,
+                        message: 'Error en el servidor',
+                        status: 'error'
+                    });
+                    setLoading(false);
+                }
+            });
+        }else{
+            await clienteAxios
+                .post(`/tasks/${sesionUser._id}`, datosTarea)
+                .then((res) => {
+                    setLoading(false);
+                    handleClickOpen();
+                    setAlert({
+                        open: true,
+                        message: res.data.message,
+                        status: 'success'
+                    });
+                }
+            ).catch((err) => {
+                handleClickOpen();
+                if (err.response) {
+                    setAlert({
+                        open: true,
+                        message: 'Oh no ocurrio un problema en el registro',
+                        status: 'error'
+                    });
+                    setLoading(false);
+                } else {
+                    setAlert({
+                        open: true,
+                        message: 'Error en el servidor',
+                        status: 'error'
+                    });
+                    setLoading(false);
+                }
+            });
+        }
+    };
+
+    if (loading ){
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="30vh">
+                <CircularProgress />
+            </Box>
+        );
+    }
     return (
         <>
             {type === "EDITAR" ? (
                 <Button 
-                    size="large"
+                    size="medium"
                     color="primary"
                     variant="outlined"
                     onClick={handleClickOpen}
@@ -46,7 +153,7 @@ export default function NewTask({type}) {
                     <b>New Task</b>
                 </Button>
             )}
-
+            <SnackBarMessages alert={alert} setAlert={setAlert} />
             <Dialog
                 open={open}
                 onClose={handleClickOpen}
@@ -55,7 +162,6 @@ export default function NewTask({type}) {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
             >
-
                 <DialogTitle id="alert-dialog-title">
                     <Box textAlign="center">
                         <Typography variant="h6">
@@ -77,6 +183,7 @@ export default function NewTask({type}) {
                                     fullWidth
                                     size="small"
                                     name="title"
+                                    value={datosTarea ? datosTarea.title : ""}
                                     onChange={obtenerDatos}
                                     variant="outlined"
                                 />
@@ -88,8 +195,9 @@ export default function NewTask({type}) {
                             <Typography>Prioridad:</Typography>
                             <Box display="flex" width="100%" >
                                 <FormControl  sx={{ m: 1, width: '100%' }}>
-                                    <Select 
-                                        label="Age"
+                                    <Select
+                                        name="priority" 
+                                        value={datosTarea ? datosTarea.priority : ""}
                                         onChange={obtenerDatos}
                                     >
                                         <MenuItem value="NINGUNA">
@@ -110,8 +218,9 @@ export default function NewTask({type}) {
                                 <TextField
                                     fullWidth
                                     size="small"
-                                    name="title"
+                                    name="expiration_date"
                                     type="date"
+                                    value={datosTarea.expiration_date ? datosTarea.expiration_date : ""}
                                     onChange={obtenerDatos}
                                     variant="outlined"
                                 />
@@ -122,8 +231,9 @@ export default function NewTask({type}) {
                             <Box display="flex">
                                 <TextField
                                     fullWidth
+                                    value={datosTarea ? datosTarea.expiration_hour : ""}
                                     size="small"
-                                    name="title"
+                                    name="expiration_hour"
                                     type="time"
                                     onChange={obtenerDatos}
                                     variant="outlined"
@@ -140,6 +250,7 @@ export default function NewTask({type}) {
                                     size="small"
                                     multiline
                                     rows={3}
+                                    value={datosTarea ? datosTarea.description : ""}
                                     name="description"
                                     onChange={obtenerDatos}
                                     variant="outlined"
@@ -147,6 +258,16 @@ export default function NewTask({type}) {
                             </Box>
                         </Box>
                     </div>
+                    <Box p={2} textAlign="center">
+                        <Button
+                            variant="contained"
+                            color="success"
+                            size="medium"
+                            onClick={() => createTasks(datosTarea ? datosTarea._id : "")}
+                        >
+                            {type==="EDITAR" ? "editar" : "registrar"}
+                        </Button>
+                    </Box>
                 </DialogContent>
             </Dialog>
         </>

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@mui/styles';
-import { Avatar, Button,  Grid, Paper, TextField, Typography } from '@mui/material';
+import { Avatar, Button,  CircularProgress,  Grid, Paper, TextField, Typography } from '@mui/material';
+import clienteAxios from '../../Config/axios';
+import jwt_decode from 'jwt-decode';
 import { Box } from '@mui/system';
-import imagen from '../../img/BlackStones.jpg'
-
+import imagen from '../../img/BlackStones.jpg';
+import SnackBarMessages from '../../Components/SnackBarMessages';
 
 const useStyles = makeStyles(() => ({
     formInputFlex: {
@@ -15,17 +17,71 @@ const useStyles = makeStyles(() => ({
     },
 }))
 
-export default function Login() {
+export default function Login(props) {
 
     const classes = useStyles();
     const [login, setLogin] = useState([]);
-
+    const [loading, setLoading] = useState(false);
+    const [ alert, setAlert ] = useState({ message: '', status: '', open: false });
     const obtenerDatos =(e)=>{
         setLogin({...login, [e.target.name]: e.target.value})
-    }
+    };
+
+    const loginUser = async () => {
+        if (!login.password || !login.nameUser) {
+            setAlert({
+                open: true,
+                message: 'Por favor completa todos los datos.',
+                status: 'error'
+            });
+			return;
+		}
+        setLoading(true);
+
+        await clienteAxios
+            .post('/user/loginUser/', login)
+            .then((res) => {
+                setLoading(false);
+                const token = res.data.token;
+			    const decoded = jwt_decode(token);
+                localStorage.setItem('sesionUser', JSON.stringify(decoded));
+			    localStorage.setItem('tokenUser', JSON.stringify(token));
+                setAlert({
+                    open: true,
+                    message: 'Bienvenido',
+                    status: 'success'
+                });
+                props.history.push(`/tasks`);
+            }
+        ).catch((err) => {
+            if (err.response) {
+                setAlert({
+                    open: true,
+                    message: 'Al parecer los datos estan incorrectos',
+                    status: 'error'
+                });
+                setLoading(false);
+            } else {
+                setAlert({
+                    open: true,
+                    message: 'Error en el servidor',
+                    status: 'error'
+                });
+                setLoading(false);
+            }
+        });
+    };
+
+    if (loading)
+		return (
+			<Box display="flex" justifyContent="center" alignItems="center" height="30vh">
+				<CircularProgress />
+			</Box>
+		);
 
     return (
         <>
+            <SnackBarMessages alert={alert} setAlert={setAlert} />
             <Grid 
                 container
                 direction="row"
@@ -58,7 +114,7 @@ export default function Login() {
                                     <TextField
                                         fullWidth
                                         size="small"
-                                        name="name"
+                                        name="nameUser"
                                         onChange={obtenerDatos}
                                         variant="outlined"
                                     />
@@ -84,6 +140,7 @@ export default function Login() {
                                 variant="contained"
                                 color="success"
                                 size="large"
+                                onClick={loginUser}
                             >
                                 Iniciar Sesion
                             </Button>

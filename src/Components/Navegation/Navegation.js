@@ -6,8 +6,9 @@ import imagen from '../../img/BlackStones.jpg'
 import NewTask from  '../../Pages/Tasks/NewTask'
 import { Link } from 'react-router-dom';
 
-export default function Navegation() {
-
+export default function Navegation(props) {
+    const sesionUser = JSON.parse(localStorage.getItem('sesionUser'));
+    
     const [open, setOpen] = useState(false);
     const [openUser, setOpenUser] = useState(false);
 
@@ -17,7 +18,12 @@ export default function Navegation() {
 
     const handleClickOpenUser = () => {
         setOpenUser(!openUser);
-    }
+    };
+
+    const cerrarSesion =()=>{
+        localStorage.removeItem("sesionUser");
+        localStorage.removeItem("tokenUser");
+    };
 
     return (
         <>
@@ -34,36 +40,40 @@ export default function Navegation() {
                 <Button
                     component={Link}
                     to="/"
-                    // onClick={handleCloseNavMenu}
                     sx={{ my: 2, pl: 3, color: 'white', display: 'block' }}
                 >
                     <b>Home</b>
                 </Button>
-                <Button
-                    component={Link}
-                    to="/login"
-                    // onClick={handleCloseNavMenu}
-                    sx={{ my: 2, pl: 3, color: 'white', display: 'block' }}
-                >
-                    <b>Login</b>
-                </Button>
-                <Button
-                    component={Link}
-                    to="/register"
-                    // onClick={handleCloseNavMenu}
-                    sx={{ my: 2, pl: 3, color: 'white', display: 'block' }}
-                >
-                    <b>Register</b>
-                </Button>
-                <Button
-                    component={Link}
-                    to="/tasks"
-                    // onClick={handleCloseNavMenu}
-                    sx={{ my: 2, pl: 3, color: 'white', display: 'block' }}
-                >
-                    <b>Tasks</b>
-                </Button>
-                <NewTask />
+                {sesionUser ? (
+                    <>
+                        <Button
+                            component={Link}
+                            to="/tasks"
+                            sx={{ my: 2, pl: 3, color: 'white', display: 'block' }}
+                        >
+                            <b>Tasks</b>
+                        </Button>
+                        <NewTask />
+                    </>
+                ) : (
+                    <>
+                        <Button
+                            component={Link}
+                            to="/login"
+                            sx={{ my: 2, pl: 3, color: 'white', display: 'block' }}
+                        >
+                            <b>Login</b>
+                        </Button>
+                        <Button
+                            component={Link}
+                            to="/register"
+                            sx={{ my: 2, pl: 3, color: 'white', display: 'block' }}
+                        >
+                            <b>Register</b>
+                        </Button>
+                    </>
+                )}
+                
             </Box>
             <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
                 <IconButton
@@ -76,44 +86,58 @@ export default function Navegation() {
                 >
                     <MenuIcon />
                 </IconButton>
-            <Menu
-                anchorEl={open}
-                anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-                }}
-                keepMounted
-                transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-                }}
-                open={Boolean(open)}
-                onClose={handleClickOpen}
-                sx={{
-                display: { xs: 'block', md: 'none' },
-                }}
-            >
-                <MenuItem component={Link} to="/" >
-                  <Typography textAlign="center">Home</Typography>
-                </MenuItem>
-                <MenuItem component={Link} to="/login" >
-                  <Typography textAlign="center">Login</Typography>
-                </MenuItem>
-                <MenuItem component={Link} to="/register" >
-                  <Typography textAlign="center">Register</Typography>
-                </MenuItem>
-            </Menu>
-          </Box>
-          <Box sx={{ flexGrow: 0 }}>
-                <Tooltip title="Open settings">
-                    <IconButton sx={{ p: 0 }}>
-                        <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-                    </IconButton>
-                </Tooltip>
                 <Menu
                     sx={{ mt: '45px' }}
                     id="menu-appbar"
-                    anchorEl={setOpenUser}
+                    anchorEl={open}
+                    anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'left',
+                    }}
+                    keepMounted
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'left',
+                    }}
+                    open={open}
+                    onClose={handleClickOpen}
+                >
+                    <MenuItem component={Link} to="/" onClick={handleClickOpen}>
+                        <Typography textAlign="center">Home</Typography>
+                    </MenuItem>
+                    {sesionUser ? (
+                        <>
+                            <MenuItem component={Link} to="/tasks" onClick={handleClickOpen}>
+                                <Typography textAlign="center">Tasks</Typography>
+                            </MenuItem>
+                            {/* <MenuItem onClick={handleClickOpen}> */}
+                                {/* <NewTask />
+                            </MenuItem> */}
+                        </>
+                        ) : (
+                        <>
+                            <MenuItem component={Link} to="/login" onClick={handleClickOpen}>
+                                <Typography textAlign="center">Login</Typography>
+                            </MenuItem>
+                            <MenuItem component={Link} to="/register" onClick={handleClickOpen}>
+                                <Typography textAlign="center">Register</Typography>
+                            </MenuItem>
+                        </>
+                    )}
+                </Menu>
+            </Box>
+            <Box sx={{ flexGrow: 0 }}>
+                {sesionUser ? (
+                    <Tooltip title="Open settings">
+                        <IconButton sx={{ p: 0 }} onClick={handleClickOpenUser} >
+                            <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                        </IconButton>
+                    </Tooltip>
+                ) : null}
+                <Menu
+                    sx={{ mt: '45px' }}
+                    id="menu-appbar"
+                    anchorEl={openUser}
                     anchorOrigin={{
                         vertical: 'top',
                         horizontal: 'right',
@@ -123,11 +147,16 @@ export default function Navegation() {
                         vertical: 'top',
                         horizontal: 'right',
                     }}
-                    open={Boolean(openUser)}
+                    open={openUser}
                     onClose={handleClickOpenUser}
                 >
                     <MenuItem 
-                        onClick={handleClickOpenUser}
+                        component={Link} 
+                        to="/"
+                        onClick={() => {
+                            handleClickOpenUser()
+                            cerrarSesion()
+                        }}
                     >
                         <Typography textAlign="center">Cerrar Sesión</Typography>
                     </MenuItem>
