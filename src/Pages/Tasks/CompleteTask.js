@@ -23,21 +23,9 @@ export default function CompleteTask({task, setReload, setLoading, setAlert}) {
         .then((res) => {
             setReload(true);
             setLoading(false);
-            setAlert({
-                open: true,
-                message: "Empresa Publicada con Exito",
-                status: 'success'
-            });
-
         }).catch((err) => {
             setReload(true);
             setLoading(false);
-            setAlert({
-                open: true,
-                message: "Error en el servidor",
-                status: 'error'
-            });
-
         });
     };
 
@@ -55,6 +43,7 @@ export default function CompleteTask({task, setReload, setLoading, setAlert}) {
                         completeTask(task, !task.complete)
                     }}
             >
+                {console.log(task.complete)}
                 {task.complete === false ? "Pediente" : "Completa"}
             </Button>
         </div>

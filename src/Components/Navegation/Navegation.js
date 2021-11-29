@@ -42,7 +42,7 @@ export default function Navegation(props) {
                     to="/"
                     sx={{ my: 2, pl: 3, color: 'white', display: 'block' }}
                 >
-                    <b>Home</b>
+                    <b>Incio</b>
                 </Button>
                 {sesionUser ? (
                     <>
@@ -51,7 +51,7 @@ export default function Navegation(props) {
                             to="/tasks"
                             sx={{ my: 2, pl: 3, color: 'white', display: 'block' }}
                         >
-                            <b>Tasks</b>
+                            <b>Tareas</b>
                         </Button>
                         <NewTask />
                     </>
@@ -62,14 +62,14 @@ export default function Navegation(props) {
                             to="/login"
                             sx={{ my: 2, pl: 3, color: 'white', display: 'block' }}
                         >
-                            <b>Login</b>
+                            <b>Sesión</b>
                         </Button>
                         <Button
                             component={Link}
                             to="/register"
                             sx={{ my: 2, pl: 3, color: 'white', display: 'block' }}
                         >
-                            <b>Register</b>
+                            <b>Registro</b>
                         </Button>
                     </>
                 )}
@@ -108,19 +108,19 @@ export default function Navegation(props) {
                     {sesionUser ? (
                         <>
                             <MenuItem component={Link} to="/tasks" onClick={handleClickOpen}>
-                                <Typography textAlign="center">Tasks</Typography>
+                                <Typography textAlign="center">Tareas</Typography>
                             </MenuItem>
-                            {/* <MenuItem onClick={handleClickOpen}> */}
-                                {/* <NewTask />
-                            </MenuItem> */}
+                            <MenuItem onClick={handleClickOpen}>
+                                <NewTask />
+                            </MenuItem>
                         </>
                         ) : (
                         <>
                             <MenuItem component={Link} to="/login" onClick={handleClickOpen}>
-                                <Typography textAlign="center">Login</Typography>
+                                <Typography textAlign="center">Sesión</Typography>
                             </MenuItem>
                             <MenuItem component={Link} to="/register" onClick={handleClickOpen}>
-                                <Typography textAlign="center">Register</Typography>
+                                <Typography textAlign="center">Registro</Typography>
                             </MenuItem>
                         </>
                     )}

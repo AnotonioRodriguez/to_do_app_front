@@ -129,6 +129,7 @@ export default function Login(props) {
                                         fullWidth
                                         size="small"
                                         name="password"
+                                        type="password"
                                         onChange={obtenerDatos}
                                         variant="outlined"
                                     />

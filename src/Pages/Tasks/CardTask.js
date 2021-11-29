@@ -69,7 +69,7 @@ export default function CardTask({task, setReload,setLoading, setAlert}) {
     )
 }
 
-function DeleteTask({task, setReload, setLoading, setAlert}) {
+function DeleteTask({task, setReload, setLoading}) {
     const sesionUser = JSON.parse(localStorage.getItem('sesionUser'));
     const tokenUser = JSON.parse(localStorage.getItem('tokenUser'));
 
@@ -91,28 +91,13 @@ function DeleteTask({task, setReload, setLoading, setAlert}) {
                 handleClickOpen();
                 setLoading(false);
                 setReload(true);
-                setAlert({
-                    open: true,
-                    message: res.data.message,
-                    status: 'success'
-                });
             }
         ).catch((err) => {
             handleClickOpen();
             setReload(true);
             if (err.response) {
-                setAlert({
-                    open: true,
-                    message: 'Oh no ocurrio un problema en el registro',
-                    status: 'error'
-                });
                 setLoading(false);
             } else {
-                setAlert({
-                    open: true,
-                    message: 'Error en el servidor',
-                    status: 'error'
-                });
                 setLoading(false);
             }
         });

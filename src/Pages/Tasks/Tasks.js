@@ -43,7 +43,7 @@ export default function Tasks() {
         setUpdate(false);
     }, [reload, update]);
 
-    if (loading)
+    if (loading || update)
 		return (
 			<Box display="flex" justifyContent="center" alignItems="center" height="30vh">
 				<CircularProgress />

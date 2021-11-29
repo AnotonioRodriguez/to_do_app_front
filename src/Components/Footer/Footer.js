@@ -2,6 +2,7 @@ import { Avatar, Grid,  IconButton,  Link, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { Box } from '@mui/system';
 import React from 'react';
+import imagen from '../../img/Perfil.jpeg'
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
 
@@ -25,7 +26,7 @@ export default function Footer() {
                 <Grid item lg={4} xs={12}>
                     <Box p={1} sx={{ display: { xs: 'none', sm: 'none', md: 'block', lg: 'block'}}}>
                         <Box textAlign="center" display="flex" justifyContent="center" >
-                            <Avatar component={Link} to={`/`} alt="Remy Sharp" sx={{ width: 130, height: 130 }} />
+                            <Avatar component={Link} to={`/`} src={imagen} alt="Remy Sharp" sx={{ width: 130, height: 130 }} />
                         </Box>
                     </Box>
                 </Grid>

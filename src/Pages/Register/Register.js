@@ -208,6 +208,7 @@ export default function Register(props) {
                                         fullWidth
                                         size="small"
                                         name="password"
+                                        type="password"
                                         onChange={obtenerDatos}
                                         variant="outlined"
                                     />
@@ -220,6 +221,7 @@ export default function Register(props) {
                                         fullWidth
                                         size="small"
                                         name="repeatPassword"
+                                        type="password"
                                         onChange={obtenerDatos}
                                         variant="outlined"
                                     />

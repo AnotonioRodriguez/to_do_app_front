@@ -19,7 +19,6 @@ const useStyles = makeStyles(() => ({
 export default function NewTask({type, task}) {
     const sesionUser = JSON.parse(localStorage.getItem('sesionUser'));
     const token = localStorage.getItem('tokenUser');
-    console.log(token);
     const { update, setUpdate } = useContext(TaskContext);
 
     const classes = useStyles();
@@ -58,7 +57,6 @@ export default function NewTask({type, task}) {
 		}
         setLoading(true);
         if(type === "EDITAR"){
-            console.log(task);
             await clienteAxios
             .put(`/tasks/${sesionUser._id}/${task}`, datosTarea,{
 				headers: {
@@ -100,6 +98,7 @@ export default function NewTask({type, task}) {
                 .then((res) => {
                     setLoading(false);
                     handleClickOpen();
+                    setUpdate(!update);
                     setAlert({
                         open: true,
                         message: res.data.message,
@@ -108,6 +107,7 @@ export default function NewTask({type, task}) {
                 }
             ).catch((err) => {
                 handleClickOpen();
+                setUpdate(!update);
                 if (err.response) {
                     setAlert({
                         open: true,
@@ -127,13 +127,6 @@ export default function NewTask({type, task}) {
         }
     };
 
-    if (loading ){
-        return (
-            <Box display="flex" justifyContent="center" alignItems="center" height="30vh">
-                <CircularProgress />
-            </Box>
-        );
-    }
     return (
         <>
             {type === "EDITAR" ? (
@@ -150,7 +143,7 @@ export default function NewTask({type, task}) {
                     onClick={handleClickOpen}
                     sx={{ my: 2, pl: 3, color: 'white', display: 'block' }}
                 >
-                    <b>New Task</b>
+                    <b>NUEVA TAREA</b>
                 </Button>
             )}
             <SnackBarMessages alert={alert} setAlert={setAlert} />
